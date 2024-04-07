@@ -1,0 +1,113 @@
+body {
+    font-family: 'Montserrat';
+    font-size: 30px;
+    background: #292929;
+    color: #f5f5f5;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+body::-webkit-scrollbar {
+    display: none;
+}
+.wrapper {
+    display: flex;
+    justify-content: space-between;
+}
+.page-el {
+    width: 550px;
+}
+.input {
+    padding: 10px 0 10px 10px;
+    border-radius: 5px;
+    background: #1d1d1d;
+    border: none;
+    color: #f5f5f5;
+    margin-bottom: 15px;
+    width: 550px;
+    box-sizing: border-box;
+}
+.input:last-child {
+    margin-bottom: 5px;
+}
+.anime-text {
+    font-weight: bold;
+    padding-bottom: 5px;
+}
+
+#anime-radio {
+    display: flex;
+    width: 550px;
+    margin-bottom: 15px;
+    justify-content: space-between;
+}
+input[type="radio"]{
+    display: none;
+}
+label {
+    position: relative;
+    color: #f5f5f5;
+    font-size: 10px;
+    border: 2px solid #f5f5f5;
+    border-radius: 5px;
+    padding: 10px 20px 10px 50px;
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    flex-grow: 1;
+    margin-right: 10px;
+}
+label::before{
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    content: "";
+    height: 15px;
+    width: 15px;
+    border: 3px solid #f5f5f5;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+input[type="radio"]:checked + label{
+    background: #1d1d1d;
+    color: #f5f5f5;
+}
+input[type="radio"]:checked + label::before{
+    height: 7px;
+    width: 7px;
+    border: 6px solid #f5f5f5;
+    background: #1d1d1d;
+}
+
+#anim-add-btn {
+    display: block;
+    padding: 10px;
+    border-radius: 5px;
+    background: #1d1d1d;
+    border: none;
+    color: #f5f5f5;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.anime-list {
+    width: 600px;
+}
+.anime-list-item {
+    padding: 10px 20px;
+    background: #1d1d1d;
+    margin: 10px 0;
+    border-radius: 10px;
+}
+.anime-list-item {
+    display: flex;
+    justify-content: space-between;
+}
+.delete-button {
+    color: #f5f5f5;
+    font-size: 30px;
+    cursor: pointer;
+}
+.page-el img{
+    width: 500px;
+}
