@@ -1,4 +1,4 @@
-import csv, eel
+import csv, eel, re
 
 eel.init('web')
 
@@ -36,5 +36,15 @@ def delete_anime(index):
         writer.writeheader()
         for anime in anime_list:
             writer.writerow(anime)
+
+@eel.expose
+def find_anime(name):
+    with open('data.csv', 'r', newline='', encoding='utf-8') as csvfile:
+        reader = csv.DictReader(csvfile)
+        matching_anime = []
+        for row in reader:
+            if re.search(name, row['Name'], re.IGNORECASE):
+                matching_anime.append(row)
+        return matching_anime
 
 eel.start('index.html', size=(1300, 900))

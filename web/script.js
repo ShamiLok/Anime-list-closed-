@@ -4,6 +4,7 @@ let notes = document.getElementById("anime-notes")
 let progressType = document.querySelectorAll('input[name="progressType"]')
 let animeListDiv = document.getElementById('anime-list');
 let addBtn =  document.getElementById('anim-add-btn');
+let search =  document.getElementById('search');
 let animeCount =  document.getElementById('anime-count');
 let progressTypePrev = 'сезоны'
 for (var i = 0; i < progressType.length; i++) {
@@ -16,6 +17,7 @@ progressType[i].addEventListener('change', function() {
 }
 
 addBtn.addEventListener('click', addAnime)
+search.addEventListener('input', {handleEvent: loadAnimeList, isSearch: true}) // не смотри сюда
 
 function addAnime() {
     if (progressTypePrev === "не применимо" && progress.value != "")
@@ -33,14 +35,15 @@ function addAnime() {
         animeName.value = ''
         progress.value = ''
         notes.value = ''
-        loadAnimeList()
+        search.value = ''
+        loadAnimeList.call({ isSearch: false }); // сюда тоже не смотри
     }
     
 }
-async function loadAnimeList() {
+async function loadAnimeList(event) {
     animeListDiv.innerHTML = ''
     try {
-        let arr = await eel.load_csv()();
+        let arr = this.isSearch ? await eel.find_anime(search.value)() : await eel.load_csv()();
         arr.reverse().forEach((anime, index) => {
             let animeItemDiv = document.createElement('div');
             animeItemDiv.classList.add('anime-list-item');
@@ -62,7 +65,6 @@ async function loadAnimeList() {
             deleteButton.classList.add('delete-button');
             deleteButton.addEventListener('click', (event) => {
                 eel.delete_anime(arr.length-index-1)()
-                // loadAnimeList()
                 event.target.parentElement.remove();
             });
 
@@ -80,10 +82,10 @@ async function loadAnimeList() {
             animeItemDiv.appendChild(deleteButton);
             animeListDiv.appendChild(animeItemDiv);
         });
-        animeCount.innerText = `Всего добавлено: ${arr.length} тайтлов`
+        animeCount.innerText = this.isSearch && search.value != 0 ? `Всего найдено: ${arr.length} тайтлов` : `Всего добавлено: ${arr.length} тайтлов`
 
     } catch (error) {
         console.error(error);
     }
 }
-loadAnimeList()
+loadAnimeList.call({ isSearch: false }); // ...
