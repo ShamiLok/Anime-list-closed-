@@ -8,27 +8,8 @@
     </head>
     <body>
         <div class="wrapper">
-            <div class="page-el">
-                <div class="anime-text">Название</div>
-                <input type='text' class="input" id='anime-name' placeholder='Атака титанов'>
-                <div class="anime-text">Тип прогресса</div>
-                <div id='anime-radio'>
-                    <input type="radio" id="season" name="progressType" value="сезоны" checked />
-                    <label for="season">сезоны</label>
-                    <input type="radio" id="series" name="progressType" value="серии" />
-                    <label for="series">серии</label>
-                    <input type="radio" id="nd" name="progressType" value="не применимо" />
-                    <label for="nd">не применимо</label>
-                </div>
-                <div class="anime-text">Просмотрено</div>
-                <input class="input" type='number' id='anime-progress' placeholder='2'>
-                <div class="anime-text">Примечания</div>
-                <input class="input" type='text' id='anime-notes' placeholder='Класное аниме, плюс просмотрен фильм'>
-                <input class="input" type='button' id='anim-add-btn' value='Добавить' onclick="addAnime">
-                <input class="input" type='text' id='search' placeholder='Поиск'>
-                <div id="anime-list"></div>
-            </div>
-            <div class="page-el">
+            <div id="main-page"></div>
+            <div id="additional-page">
                 <img src="tohou.png" alt="">
                 <div id="anime-count"></div>
             </div>
