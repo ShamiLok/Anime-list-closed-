@@ -114,22 +114,30 @@ input[type="radio"]:checked + label::before{
 #additional-page img{
     width: 500px;
 }
-#willwatch {
+.openSomethingBtn {
     position: absolute;
-    right: -100px;
     top: 10px;
     padding: 5px;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
-#willwatch svg{
-    color: #f5f5f5;
-    margin: 0 auto;
-    display: block;
+#willwatch, #main {
+    right: -110px;
 }
-#willwatch p{
+
+#settings {
+    right: -200px;
+}
+#settings svg, #main svg {
+    width: 30px;
+    height: 30px;
+}
+.openSomethingBtn p{
     font-size: 10px;
     display: block;
-    margin: 0 auto;
     width: 90px;
     text-align: center;
 }
