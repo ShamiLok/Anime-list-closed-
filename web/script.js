@@ -69,7 +69,7 @@ function loadWillWatchPage() {
     <input type='text' class="input" id='anime-name' placeholder='Атака титанов'>
     <div class="anime-text">Примечания</div>
     <input class="input" type='text' id='anime-notes' placeholder='Заметки'>
-    <input class="input" type='button' id='anim-add-btn' value='Добавить' onclick="addAnime">
+    <input class="input" type='button' id='anim-add-btn' value='Добавить'">
     <input class="input" type='text' id='search' placeholder='Поиск'>
     <div id="anime-list"></div>
     <div id="willwatch" class="openSomethingBtn">
@@ -102,13 +102,14 @@ function loadWillWatchPage() {
 }
 
 async function loadSettingPage() {
-    mainPage.innerHTML = `//<div class="anime-text">Сохранять локально?</div>
-    // <div id='anime-radio'>
-    //     <input type="radio" id="yes" name="localSaving" value="Да" checked />
-    //     <label for="yes">Да</label>
-    //     <input type="radio" id="no" name="localSaving" value="Нет" />
-    //     <label for="no">Нет</label>
-    // </div>
+    mainPage.innerHTML = `<!-- //<div class="anime-text">Сохранять локально?</div>
+    <div id='anime-radio'>
+        <input type="radio" id="yes" name="localSaving" value="Да" checked />
+        <label for="yes">Да</label>
+        <input type="radio" id="no" name="localSaving" value="Нет" />
+        <label for="no">Нет</label>
+    </div> -->
+    <div class="anime-text">Адрес сервера</div>
     <input class="input" type='text' id='server' placeholder='http://192.168.31.100:22848/index.php'>
     <div id="main" class="openSomethingBtn">
         <svg fill="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="home-alt-3" class="icon glyph" stroke="#fff"><g id="SVGRepo_bgCarrier" stroke-width="0">
@@ -131,7 +132,8 @@ async function loadSettingPage() {
     });
 }
 
-function addAnime() {
+async function addAnime() {
+    let lastid = await eel.getLastID(this.isMain)()
     if(this.isMain) {
         console.log(progressTypePrev)
         if (progressTypePrev === "не применимо" && this.progress.value != "")
@@ -139,9 +141,9 @@ function addAnime() {
         
         if ((progressTypePrev === "сезоны" || progressTypePrev === "серии") && this.progress.value === "")
             return
-
         if(this.animeName.value){
             eel.add_anime({
+                'ID': Number(lastid.ID) + 1,
                 'Name': this.animeName.value, 
                 'Progress': this.progress.value ? this.progress.value : 'n/d', 
                 'ProgressType': progressTypePrev, 
@@ -155,6 +157,7 @@ function addAnime() {
     } else {
         if(this.animeName.value){
             eel.add_anime({
+                'ID': Number(lastid.ID) + 1,
                 'Name': this.animeName.value, 
                 'Notes': this.notes.value ? this.notes.value : 'n/d'
             }, this.isMain)()
@@ -171,8 +174,8 @@ async function loadAnimeList() {
     console.log('loadAnimeList')
     this.animeListDiv.innerHTML = ''
     try {
-        let arr = this.isSearch ? await eel.find_anime(search.value, this.isMain)() : (this.isMain ? await eel.load_main_csv()() : await eel.load_willWatch_csv()());
-        arr.reverse().forEach((anime, index) => {
+        let arr = this.isSearch ? await eel.find_anime(search.value, this.isMain)() : (this.isMain ? await eel.get_main_csv()() : await eel.get_willWatch_csv()());
+        arr.reverse().forEach((anime) => {
             let animeItemDiv = document.createElement('div');
             animeItemDiv.classList.add('anime-list-item');
 
@@ -192,7 +195,7 @@ async function loadAnimeList() {
             deleteButton.textContent = 'X';
             deleteButton.classList.add('delete-button');
             deleteButton.addEventListener('click', (event) => {
-                eel.delete_anime(arr.length - index - 1, this.isMain)()
+                eel.delete_anime(anime.ID, this.isMain)()
                 event.target.parentElement.remove();
             });
 

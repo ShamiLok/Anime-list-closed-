@@ -6,7 +6,7 @@ anime_list = []
 willWatch_list = []
 
 # загадка с функцией ниже
-# если был задан неверный адрес сервера, то функция ниже не будет вызыватся с js (loadSettingPage) пока load_main_csv не выдаст ошибку (где то 10 секунд)
+# если был задан неверный адрес сервера, то функция ниже не будет вызыватся с js (loadSettingPage) пока get_main_csv не выдаст ошибку (где то 10 секунд)
 @eel.expose
 def getConfigDate(configName):
     with open("config.json", "r") as config_file:
@@ -25,7 +25,7 @@ def setConfigDate(configName, newConfig):
 baseURL = getConfigDate("baseURL")
 
 @eel.expose
-def load_main_csv():
+def get_main_csv():
     try:
         anime_list.clear()
         url = baseURL + "?type=main"
@@ -33,14 +33,13 @@ def load_main_csv():
         rows = response.text.split("\n")
         for row in csv.DictReader(rows):
             anime_list.append(row)
-        print("Содержимое файла CSV успешно обновлено")
         return anime_list
     except requests.exceptions.RequestException as e:
         print(f"Ошибка при подключении к серверу: {e}")
         return []
 
 # @eel.expose
-# def load_main_csv():
+# def get_main_csv():
 #     anime_list.clear()
 #     try:
 #         with open('data.csv', newline='', encoding='utf-8') as csvfile:
@@ -52,7 +51,7 @@ def load_main_csv():
 #         pass
 
 @eel.expose
-def load_willWatch_csv():
+def get_willWatch_csv():
     try:
         willWatch_list.clear()
         url = baseURL + "?type=willwatch"
@@ -60,7 +59,6 @@ def load_willWatch_csv():
         rows = response.text.split("\n")
         for row in csv.DictReader(rows):
             willWatch_list.append(row)
-        print("Содержимое файла willwatch.csv успешно обновлено")
         return willWatch_list
     except requests.exceptions.RequestException as e:
         print(f"Ошибка при подключении к серверу: {e}")
@@ -78,11 +76,11 @@ def load_willWatch_csv():
 # @eel.expose
 # def add_anime(newAnime, isMain):
 #     if(isMain):
-#         load_main_csv()
+#         get_main_csv()
 #         anime_list.append(newAnime)
 #         writeCSV('data.csv', isMain)
 #     else:
-#         load_willWatch_csv()
+#         get_willWatch_csv()
 #         will_watch_list.append(newAnime)
 #         writeCSV('willwatch.csv', isMain)
 @eel.expose
@@ -113,9 +111,14 @@ def delete_anime(index, isMain):
 @eel.expose
 def find_anime(name, isMain):
     matching_anime = []
-    for anime in anime_list:
-        if re.search(name, anime['Name'], re.IGNORECASE):
-            matching_anime.append(anime)
+    if (isMain):
+        for anime in anime_list:
+            if re.search(name, anime['Name'], re.IGNORECASE):
+                matching_anime.append(anime)
+    else:
+        for anime in willWatch_list:
+            if re.search(name, anime['Name'], re.IGNORECASE):
+                matching_anime.append(anime)
     return matching_anime
 
 # @eel.expose
@@ -135,6 +138,18 @@ def find_anime(name, isMain):
 #         writer.writeheader()
 #         for anime in anime_list:
 #             writer.writerow(anime)
+
+@eel.expose
+def getLastID(isMain):
+    try:
+        if(isMain):
+            return(get_main_csv()[len(get_main_csv()) - 1])
+        else:
+            return(get_willWatch_csv()[len(get_willWatch_csv()) - 1])
+    except requests.exceptions.RequestException as e:
+        print(f"Ошибка при подключении к серверу: {e}")
+        return []
+
 
 #eel.start('index.html', size=(1300, 900))
 eel.start('index.html', size=(1300, 900), mode='my_portable_chromium')
