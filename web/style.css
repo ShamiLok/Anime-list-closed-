@@ -34,7 +34,7 @@ body::-webkit-scrollbar {
     padding-bottom: 5px;
 }
 
-#anime-radio {
+.checkBox {
     display: flex;
     width: 550px;
     margin-bottom: 15px;
