@@ -23,7 +23,7 @@ async function wrapper() {
         <input class="input" type='number' id='anime-progress' placeholder='2'>
         <div class="anime-text">Примечания</div>
         <input class="input" type='text' id='anime-notes' placeholder='Класное аниме, плюс просмотрен фильм'>
-        <input class="input" type='button' id='anim-add-btn' value='Добавить' onclick="addAnime">
+        <input class="input" type='button' id='anim-add-btn' value='Добавить'>
         <input class="input" type='text' id='search' placeholder='Поиск'>
         <div id="anime-list"></div>
         <div id="willwatch" class="openSomethingBtn">
@@ -113,6 +113,10 @@ async function wrapper() {
         </div>
         <div class="anime-text">Адрес сервера</div>
         <input class="input" type='text' id='serverAddress' placeholder='http://192.168.31.100:22848/index.php'>
+        <div class="anime-text">Логин</div>
+        <input class="input" type='text' id='login' placeholder='user'>
+        <div class="anime-text">Пароль</div>
+        <input class="input" type='text' id='password' placeholder='P@ssw0rd'>
         <div id="main" class="openSomethingBtn">
             <svg fill="#fff" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" id="home-alt-3" class="icon glyph" stroke="#fff"><g id="SVGRepo_bgCarrier" stroke-width="0">
                 </g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path d="M21.71,10.29l-9-9a1,1,0,0,0-1.42,0l-9,9a1,1,0,0,0-.21,1.09A1,1,0,0,0,3,12H4v9a1,1,0,0,0,1,1H8a1,1,0,0,0,1-1V15a1,1,0,0,1,1-1h4a1,1,0,0,1,1,1v6a1,1,0,0,0,1,1h3a1,1,0,0,0,1-1V12h1a1,1,0,0,0,.92-.62A1,1,0,0,0,21.71,10.29Z"></path></g>
@@ -121,17 +125,26 @@ async function wrapper() {
         </div>`
         const mainBtn =  document.getElementById('main');
         const serverAddress = document.getElementById("serverAddress");
+        const login = document.getElementById("login");
+        const password = document.getElementById("password");
         const baseURL = await eel.getConfigDate("baseURL")();
+        const loginValue = await eel.getConfigDate("username")();
+        const passwordValue = await eel.getConfigDate("password")();
         const whereToSave = document.querySelectorAll('input[name="localSaving"]')
 
-        if (baseURL.length >= 10) {
-            serverAddress.value = baseURL
-        }
-
+        serverAddress.value = baseURL
+        login.value = loginValue
+        password.value = passwordValue
+        
         mainBtn.addEventListener('click', loadMainPage);
         serverAddress.addEventListener('input', async function(event) {
             await eel.setConfigDate("baseURL", serverAddress.value)();
-            console.log('Значение изменено на: ', event.target.value);
+        });
+        login.addEventListener('input', async function(event) {
+            await eel.setConfigDate("username", login.value)();
+        });
+        password.addEventListener('input', async function(event) {
+            await eel.setConfigDate("password", password.value)();
         });
 
         for (var i = 0; i < whereToSave.length; i++) {
@@ -156,8 +169,6 @@ async function wrapper() {
             if ((progressTypePrev === "сезоны" || progressTypePrev === "серии") && this.progress.value === "")
                 return
             if(this.animeName.value){
-                console.log('Number(lastid.ID)')
-                console.log(lastid)
                 eel.add_anime({
                     'ID': lastid === 0 ? lastid : Number(lastid.ID) + 1,
                     'Name': this.animeName.value, 
