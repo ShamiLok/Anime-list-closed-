@@ -38,14 +38,15 @@ def setConfigDate(configName, newConfig):
 async def getToken(user, password):
     try:
         headers = {
-            "Type": "login"
+            "Content-Type": "application/json",
+            "type": "login"
         }
         userData = {
             "username": user,
             "password": password
         }
         async with aiohttp.ClientSession() as session:
-            async with session.post(baseURL, data=userData, headers=headers) as response:
+            async with session.post(baseURL, data=json.dumps(userData), headers=headers) as response:
                 response_text = await response.text()
                 return response_text
     except requests.exceptions.RequestException as e:
@@ -63,11 +64,12 @@ async def useToken(baseURL):
             print("Новый токен был получкен")
         else:
             print("Не удалось получить новый токен.")
+            # print(json.loads(new_token))
     if (token):
         try:
             headers = {
-                "Type": "tokenCheck",
-                "Authorization": f"Bearer {token}"
+                "type": "tokenCheck",
+                "authorization": f"Bearer {token}"
             }
             async with aiohttp.ClientSession() as session:
                 async with session.post(baseURL, headers=headers) as response:
@@ -100,7 +102,7 @@ def get_main_csv(whereToSavePrev):
             async with aiohttp.ClientSession() as session:
                 try:
                     anime_list.clear()
-                    headers = {"Authorization": f"Bearer {token}"}
+                    headers = {"authorization": f"Bearer {token}"}
                     async with session.get(baseURL, params="type=main", headers=headers) as response:
                         data = await response.json()
                         # print(data)
@@ -124,6 +126,7 @@ def get_main_csv(whereToSavePrev):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         result = loop.run_until_complete(fetch_data())
+        return result
     except aiohttp.ClientError as e:
         print(f"Ошибка при подключении к серверу: {e}")
         return []
@@ -137,9 +140,8 @@ def get_willWatch_csv(whereToSavePrev):
             async with aiohttp.ClientSession() as session:
                 try:
                     anime_list.clear()
-                    async with session.get(baseURL, params="type=willwatch", headers={"Authorization": f"Bearer {token}"}) as response:
+                    async with session.get(baseURL, params="type=willwatch", headers={"authorization": f"Bearer {token}"}) as response:
                         data = await response.json()
-                        # print(data)
                         for row in data:
                             # print(row)
                             anime_list.append(row)
@@ -164,10 +166,15 @@ def get_willWatch_csv(whereToSavePrev):
 
 @eel.expose
 def add_anime(newAnime, isMain, whereToSavePrev):
+    print("newAnime")
+    print(newAnime)
     if(whereToSavePrev == 'server'):
+        print("aaaaaaaaaaaaaaaaaa")
         try:
             url = baseURL + "?type=" + ("main" if isMain else "willwatch")
-            response = requests.post(url, data=newAnime, headers={"Authorization": f"Bearer {token}", "Type": "addRow"})
+            response = requests.post(url, json=newAnime, headers={"authorization": f"Bearer {token}", "type": "addrow"})
+            print("response.content")
+            print(response.content)
         except requests.exceptions.RequestException as e:
             print(f"Ошибка: {e}")
             return []
@@ -186,7 +193,7 @@ def delete_anime(index, isMain, whereToSavePrev):
     if(whereToSavePrev == 'server'):
         try:
             url = baseURL + "?type=" + ("main" if isMain else "willwatch")
-            response = requests.delete(f"{url}&number={index}", headers={"Authorization": f"Bearer {token}", "Type": "addRow"})
+            response = requests.delete(f"{url}&number={index}", headers={"authorization": f"Bearer {token}"})
         except requests.exceptions.RequestException as e:
             print(f"Ошибка при подключении к серверу: {e}")
             return []
@@ -200,28 +207,6 @@ def delete_anime(index, isMain, whereToSavePrev):
             writeCSV('data.csv', isMain)
         else:
             writeCSV('willwatch.csv', isMain)
-
-@eel.expose
-def find_anime(name, isMain, whereToSavePrev):
-    if(whereToSavePrev == 'server'):
-        matching_anime = []
-        for anime in anime_list:
-            if re.search(name, anime['Name'], re.IGNORECASE):
-                matching_anime.append(anime)
-        return matching_anime
-    else:
-        def readCSV(CSVName):
-            with open(CSVName, 'r', newline='', encoding='utf-8') as csvfile:
-                reader = csv.DictReader(csvfile)
-                matching_anime = []
-                for anime in reader:
-                    if re.search(name, anime['Name'], re.IGNORECASE):
-                        matching_anime.append(anime)
-                return matching_anime
-        if(isMain):
-            readCSV('data.csv')
-        else:
-            readCSV('willwatch.csv')
 
 def writeCSV(CSVName, isMain):
     with open(CSVName, 'w', newline='', encoding='utf-8') as csvfile:

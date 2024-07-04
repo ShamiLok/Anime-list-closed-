@@ -16,6 +16,12 @@ body::-webkit-scrollbar {
 #additional-page, #main-page {
     width: 550px;
 }
+#additional-page {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 100vh;
+}
 .input {
     padding: 10px 0 10px 10px;
     border-radius: 5px;

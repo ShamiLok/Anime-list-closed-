@@ -3,8 +3,9 @@ async function wrapper() {
     const animeCount =  document.getElementById('anime-count');
     let progressTypePrev = 'сезоны'
     let whereToSavePrev = await eel.getConfigDate("whereToSave")() ? await eel.getConfigDate("whereToSave")() : 'local'
+    let animeList = await eel.get_main_csv(whereToSavePrev)()
 
-    function loadMainPage(){
+    async function renderMainPage(){
         mainPage.innerHTML = 
         `<div class="anime-text">Название</div>
         <input type='text' class="input" id='anime-name' placeholder='Атака титанов'>
@@ -49,10 +50,22 @@ async function wrapper() {
         const progress = document.getElementById("anime-progress")
         const notes = document.getElementById("anime-notes")
     
-        addBtn.addEventListener('click', {handleEvent: addAnime, progress: progress, animeName: animeName, notes: notes, isMain: true, search: search, animeListDiv: animeListDiv, animeCount: animeCount})
-        search.addEventListener('input', {handleEvent: loadAnimeList, isSearch: true, search: search, animeListDiv: animeListDiv, isMain: true}) 
-        willWatchBtn.addEventListener('click', loadWillWatchPage)
-        settingsBtn.addEventListener('click', loadSettingPage)
+        addBtn.addEventListener('click', {handleEvent: 
+            addAnime, 
+            progress: progress, 
+            animeName: animeName, 
+            notes: notes, 
+            isMain: true, 
+            search: search, 
+            animeListDiv: animeListDiv
+        })
+        search.addEventListener('input', {handleEvent: 
+            searchAnime, isMain: true, 
+            search: search, 
+            animeListDiv: animeListDiv 
+        })
+        willWatchBtn.addEventListener('click', renderWillWatchPage)
+        settingsBtn.addEventListener('click', renderSettingPage)
         
         for (var i = 0; i < progressType.length; i++) {
             progressType[i].addEventListener('change', function() {
@@ -62,10 +75,17 @@ async function wrapper() {
                 }
             })
         }
-        loadAnimeList.call({ isSearch: false, animeListDiv: animeListDiv, isMain: true, animeCount: animeCount});
+
+        animeList = await eel.get_main_csv(whereToSavePrev)()
+
+        renderAnimeList.call({ 
+            isSearch: false, 
+            animeListDiv: animeListDiv, 
+            isMain: true
+        });
     }
 
-    function loadWillWatchPage() {
+    async function renderWillWatchPage() {
         mainPage.innerHTML = 
         `<div class="anime-text">Название</div>
         <input type='text' class="input" id='anime-name' placeholder='Атака титанов'>
@@ -95,15 +115,32 @@ async function wrapper() {
         const notes = document.getElementById("anime-notes")
         const settingsBtn =  document.getElementById('settings');
 
-        addBtn.addEventListener('click', {handleEvent: addAnime, isMain: false, search: search, animeListDiv: animeListDiv, animeName: animeName, notes: notes})
-        search.addEventListener('input', {handleEvent: loadAnimeList, isSearch: true, search: search, animeListDiv: animeListDiv, isMain: false})
-        willWatchBtn.addEventListener('click', loadMainPage)
-        settingsBtn.addEventListener('click', loadSettingPage)
-        
-        loadAnimeList.call({ isSearch: false, animeListDiv: animeListDiv, isMain: false, animeCount: animeCount });
+        addBtn.addEventListener('click', {handleEvent: 
+            addAnime, 
+            isMain: false, 
+            search: search, 
+            animeListDiv: animeListDiv, 
+            animeName: animeName, 
+            notes: notes
+        })
+        search.addEventListener('input', {handleEvent: 
+            searchAnime, isMain: false, 
+            search: search, 
+            animeListDiv: animeListDiv 
+        }) 
+        willWatchBtn.addEventListener('click', renderMainPage)
+        settingsBtn.addEventListener('click', renderSettingPage)
+
+        animeList = await eel.get_willWatch_csv(whereToSavePrev)()
+
+        renderAnimeList.call({ 
+            isSearch: false, 
+            animeListDiv: animeListDiv, 
+            isMain: false
+        });
     }
 
-    async function loadSettingPage() {
+    async function renderSettingPage() {
         mainPage.innerHTML = `<div class="anime-text">Где сохранять?</div>
         <div id='data-saving' class='checkBox'>
             <input type="radio" id="local" name="localSaving" value="local" checked />
@@ -136,7 +173,7 @@ async function wrapper() {
         login.value = loginValue
         password.value = passwordValue
         
-        mainBtn.addEventListener('click', loadMainPage);
+        mainBtn.addEventListener('click', renderMainPage);
         serverAddress.addEventListener('input', async function(event) {
             await eel.setConfigDate("baseURL", serverAddress.value)();
         });
@@ -164,7 +201,7 @@ async function wrapper() {
         let lastid = await eel.getLastID(this.isMain, whereToSavePrev)()
         if(this.isMain) {
             if (progressTypePrev === "не применимо" && this.progress.value != "")
-            return
+                return
             
             if ((progressTypePrev === "сезоны" || progressTypePrev === "серии") && this.progress.value === "")
                 return
@@ -181,6 +218,7 @@ async function wrapper() {
                 this.notes.value = ''
                 this.search.value = ''
             }
+            animeList = await eel.get_main_csv(whereToSavePrev)()
         } else {
             if(this.animeName.value){
                 eel.add_anime({
@@ -192,18 +230,21 @@ async function wrapper() {
                 this.notes.value = ''
                 this.search.value = ''
             }
+            animeList = await eel.get_willWatch_csv(whereToSavePrev)()
         }
         
-        loadAnimeList.call({ isSearch: false, animeListDiv: this.animeListDiv, isMain: this.isMain, animeCount: this.animeCount });
+        renderAnimeList.call({ 
+            isSearch: false, 
+            animeListDiv: this.animeListDiv, 
+            isMain: this.isMain, 
+        });
     }
 
-    async function loadAnimeList() {
-        console.log('loadAnimeList')
+    async function renderAnimeList() {
         this.animeListDiv.innerHTML = ''
         try {
-            let arr = this.isSearch ? await eel.find_anime(search.value, this.isMain, whereToSavePrev)() : (this.isMain ? await eel.get_main_csv(whereToSavePrev)() : await eel.get_willWatch_csv(whereToSavePrev)());
-            console.log(arr)
-            arr.reverse().forEach((anime) => {
+            const list = this.animeList ? this.animeList.reverse() : animeList
+            list.reverse().forEach((anime) => {
                 let animeItemDiv = document.createElement('div');
                 animeItemDiv.classList.add('anime-list-item');
 
@@ -241,13 +282,23 @@ async function wrapper() {
                 animeItemDiv.appendChild(deleteButton);
                 this.animeListDiv.appendChild(animeItemDiv);
             });
-            animeCount.innerText = this.isSearch && this.search.value != 0 ? `Всего найдено: ${arr.length} тайтлов` : `Всего добавлено: ${arr.length} тайтлов`
+            animeCount.innerText = this.isSearch  != 0 ? `Всего найдено: ${list.length} тайтлов` : `Всего добавлено: ${list.length} тайтлов`
 
         } catch (error) {
             console.error(error);
         }
     }
 
-    loadMainPage()
+    // крч что то сломалось с функцией поиска в питоне, не долго думая функция поиска была релизована в js 
+    function searchAnime() {
+        renderAnimeList.call({ 
+            isSearch: this.search.value.length > 0 ? true : false, 
+            animeListDiv: this.animeListDiv, 
+            isMain: this.isMain, 
+            animeList: animeList.filter(anime => anime.Name.toLowerCase().includes(this.search.value))
+        });
+    }
+
+    renderMainPage()
 }
 wrapper()

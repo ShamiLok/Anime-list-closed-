@@ -1,1 +1,1 @@
-{"whereToSave": "server", "baseURL": "http://192.168.31.100:22848/index.php", "username": "exampleUser", "password": "password", "token": ""}
+{"whereToSave": "server", "baseURL": "http://192.168.31.100:22848/index.php", "username": "exampleUser", "password": "password", "token": "{\"status\":\"success\",\"token\":\"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJ5b3VyX2lzc3VlciIsImF1ZCI6InlvdXJfYXVkaWVuY2UiLCJpYXQiOjE3MjAxMTAxMzQsIm5iZiI6MTcyMDExMDE0NCwiZXhwIjoxNzIwMTEzNzM0LCJkYXRhIjp7InVzZXJuYW1lIjoiZXhhbXBsZVVzZXIifX0.w8HBs8eKQ0bxFwZQR1Jauf7kf-ZqPb7JrX_QnAfVLWk\"}"}
